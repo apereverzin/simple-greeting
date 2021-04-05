@@ -14,14 +14,6 @@ const getPassword = () => {
     return 'passw';
 };
 
-const getAdminAccount = () => {
-    return '0xb0836a3a999260edc2a6ee2a9f375aff1886e4fe';
-};
-
-const getInvestorAccount = () => {
-    return '0xb97e446c796df3cc37af4c0386e5c0f0e7e1afa1';
-};
-
 const getIssuerAccount = () => {
     return '0xAE9DCAc1aA614Ce9b69C16068c88D09c75D76132';
 };
