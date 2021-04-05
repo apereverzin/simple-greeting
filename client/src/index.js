@@ -1,30 +1,55 @@
-const displayGreeting = async (greeting, contract) => {
-  greeting = await contract.methods.sayHello().call();
+var web3;
+var greetingContract;
+var greetingContractAbi;
+var easyWalletContract;
+var easyWalletContractAbi;
+var privateKey;
+
+const displayGreeting = async (greeting) => {
+  greeting = await greetingContract.methods.sayHello().call();
   $("h2").html(greeting);
 };
 
-const updateGreeting = (greeting, contract, accounts) => {
+const getPrivateKey = async () => {
+  var res = await easyWalletContract.methods.getValue(getIssuerAccount()).call();
+  var encryptedIssuerPrivateKey = JSON.parse(res);
+  return web3.eth.accounts.decrypt(encryptedIssuerPrivateKey, getPassword()).privateKey.substring(2);
+};
+
+const updateGreeting = (greeting) => {
   let input;
   $("#input").on("change", (e) => {
     input = e.target.value;
   });
   $("#form").on("submit", async (e) => {
     e.preventDefault();
-    await contract.methods
-      .updateGreeting(input)
-      .send({ from: accounts[0], gas: 40000 });
-    displayGreeting(greeting, contract);
+    sign.callContractMethod(
+                getIssuerAccount(),
+                privateKey,
+                web3,
+                greetingContractAbi,
+                getGreetingContractAddress(),
+                'updateGreeting',
+                [input]
+        );
+    displayGreeting(greeting);
   });
 };
 
 async function greetingApp() {
-  const web3 = await getWeb3();
-  const accounts = await web3.eth.getAccounts();
-  const contract = await getContract(web3);
+  web3 = await getWeb3();
+  greetingContract = await getGreetingContract(web3);
+  easyWalletContract = await getEasyWalletContract(web3);
+  const greetingContractData = await $.getJSON("./contracts/Greeting.json");
+  greetingContractAbi = greetingContractData.abi;
+  const easyWalletContractData = await $.getJSON("./contracts/EasyWallet.json");
+  easyWalletContractAbi = easyWalletContractData.abi;
+  privateKey = await getPrivateKey();
+
   let greeting;
 
-  displayGreeting(greeting, contract);
-  updateGreeting(greeting, contract, accounts);
+  displayGreeting(greeting);
+  updateGreeting(greeting);
 }
 
 greetingApp();
